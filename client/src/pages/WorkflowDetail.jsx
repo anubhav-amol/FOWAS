@@ -21,6 +21,7 @@ function WorkflowDetail() {
       const data = await getFailuresByWorkflowId(id);
       setFailures(data);
     }
+
     fetchFailures();
   }, [id]);
 
@@ -44,6 +45,20 @@ function WorkflowDetail() {
     });
   }
 
+  function handleResolve(failureId) {
+    setFailures((prev) =>
+      prev.map((failure) =>
+        failure.id === failureId
+          ? {
+              ...failure,
+              status: "resolved",
+              resolvedAt: new Date().toISOString().split("T")[0],
+            }
+          : failure
+      )
+    );
+  }
+
   return (
     <div>
       <h2>Workflow Detail</h2>
@@ -55,7 +70,11 @@ function WorkflowDetail() {
         <p>No failures logged.</p>
       ) : (
         failures.map((failure) => (
-          <FailureCard key={failure.id} failure={failure} />
+          <FailureCard
+            key={failure.id}
+            failure={failure}
+            onResolve={handleResolve}
+          />
         ))
       )}
 
@@ -64,6 +83,7 @@ function WorkflowDetail() {
       <form onSubmit={handleSubmit}>
         <div>
           <label>Title</label>
+          <br />
           <input
             type="text"
             value={newFailure.title}
@@ -76,6 +96,7 @@ function WorkflowDetail() {
 
         <div>
           <label>Description</label>
+          <br />
           <textarea
             value={newFailure.description}
             onChange={(e) =>
@@ -87,6 +108,7 @@ function WorkflowDetail() {
 
         <div>
           <label>Category</label>
+          <br />
           <select
             value={newFailure.category}
             onChange={(e) =>
@@ -103,6 +125,7 @@ function WorkflowDetail() {
 
         <div>
           <label>Severity</label>
+          <br />
           <select
             value={newFailure.severity}
             onChange={(e) =>
@@ -117,6 +140,7 @@ function WorkflowDetail() {
           </select>
         </div>
 
+        <br />
         <button type="submit">Add Failure</button>
       </form>
     </div>
