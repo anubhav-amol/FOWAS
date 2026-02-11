@@ -4,16 +4,44 @@ import Register from "./pages/Register";
 import WorkflowList from "./pages/WorkflowList";
 import WorkflowDetail from "./pages/WorkflowDetail";
 import Dashboard from "./pages/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <BrowserRouter>
+      <Navbar />
+
       <Routes>
-        <Route path="/" element={<WorkflowList />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/workflows/:id" element={<WorkflowDetail />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <WorkflowList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/workflows/:id"
+          element={
+            <ProtectedRoute>
+              <WorkflowDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
