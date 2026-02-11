@@ -1,37 +1,53 @@
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getWorkflows } from "../api/workflow.api";
+import { getFailuresByWorkflowId } from "../api/failure.api";
 
-function WorkflowList() {
-  const [workflows, setWorkflows] = useState([]);
+function WorkflowDetail() {
+  const { id } = useParams();
+  const [failures, setFailures] = useState([]);
 
   useEffect(() => {
-    async function fetchData() {
-      const data = await getWorkflows();
-      setWorkflows(data);
+    async function fetchFailures() {
+      const data = await getFailuresByWorkflowId(id);
+      setFailures(data);
     }
-    fetchData();
-  }, []);
+    fetchFailures();
+  }, [id]);
 
   return (
     <div>
-      <h2>Workflows</h2>
+      <h2>Workflow Detail</h2>
+      <p>Workflow ID: {id}</p>
 
-      {workflows.length === 0 ? (
-        <p>No workflows found.</p>
+      <h3>Failures</h3>
+
+      {failures.length === 0 ? (
+        <p>No failures logged.</p>
       ) : (
-        <ul>
-          {workflows.map((workflow) => (
-            <li key={workflow.id}>
-              <h3>{workflow.name}</h3>
-              <p>{workflow.description}</p>
-              <small>Created: {workflow.createdAt}</small>
-            </li>
-          ))}
-        </ul>
+        failures.map((failure) => (
+          <div
+            key={failure.id}
+            style={{
+              border: "1px solid #999",
+              padding: "10px",
+              marginBottom: "10px",
+            }}
+          >
+            <h4>{failure.title}</h4>
+            <p>{failure.description}</p>
+            <p>Category: {failure.category}</p>
+            <p>Severity: {failure.severity}</p>
+            <p>Status: {failure.status}</p>
+            <small>Created: {failure.createdAt}</small>
+            {failure.resolvedAt && (
+              <small> | Resolved: {failure.resolvedAt}</small>
+            )}
+          </div>
+        ))
       )}
     </div>
   );
 }
 
-export default WorkflowList;
+export default WorkflowDetail;
 
