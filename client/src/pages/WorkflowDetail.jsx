@@ -21,7 +21,6 @@ function WorkflowDetail() {
       const data = await getFailuresByWorkflowId(id);
       setFailures(data);
     }
-
     fetchFailures();
   }, [id]);
 
@@ -45,7 +44,7 @@ function WorkflowDetail() {
     });
   }
 
-  function handleResolve(failureId) {
+  function handleResolve(failureId, resolutionNotes) {
     setFailures((prev) =>
       prev.map((failure) =>
         failure.id === failureId
@@ -53,6 +52,7 @@ function WorkflowDetail() {
               ...failure,
               status: "resolved",
               resolvedAt: new Date().toISOString().split("T")[0],
+              resolutionNotes,
             }
           : failure
       )
