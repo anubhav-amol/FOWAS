@@ -6,7 +6,9 @@ from app.models import User, Organisation, OrganisationMembership, Workflow, Inc
 from app.routes import auth, organisations, workflows, incidents, analytics
 
 app = FastAPI(title="FOWAS API", version="1.0.0")
-Base.metadata.create_all(bind=engine)
+@app.on_event("startup")
+def on_startup():
+    Base.metadata.create_all(bind=engine)
 
 allowed_origins = [
     origin.strip()
