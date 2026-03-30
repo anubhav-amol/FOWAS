@@ -33,6 +33,39 @@ export const severityColors: Record<Severity, string> = {
   HIGH: "#ff5757",
 };
 
+export const severityGuidance: Record<Severity, string> = {
+  LOW: "Low urgency. A minor issue with limited disruption, workaround available, and little business impact.",
+  MEDIUM:
+    "Noticeable disruption. The issue affects a team, workflow, or customer path, but the system is still partially usable.",
+  HIGH: "Critical disruption. Core functionality is blocked, customers are affected, or immediate escalation is needed.",
+};
+
+export const categoryGuidance: Record<Category, string> = {
+  TECHNICAL: "Use for faults in code, infrastructure, hardware, or platform behavior.",
+  OPERATIONAL: "Use for release, process, configuration, or runbook execution problems.",
+  HUMAN: "Use when a person-driven action, gap, or oversight triggered the incident.",
+  EXTERNAL: "Use when the root cause sits outside your direct control, such as vendors or upstream services.",
+  SYSTEMIC: "Use for deeper design or architecture weaknesses that make incidents repeat or spread.",
+};
+
+export const subcategoryGuidance: Record<string, string> = {
+  "Code Bug": "Application logic behaved incorrectly or failed under expected usage.",
+  "Infrastructure Failure": "A hosting, compute, storage, or platform component stopped working as expected.",
+  "Hardware Fault": "A physical device or hardware-dependent resource caused the failure.",
+  "Deployment Error": "The issue was introduced during release, rollout, or environment promotion.",
+  "Process Gap": "A missing or weak operational process allowed the incident to happen.",
+  "Configuration Mismatch": "Settings were incorrect, inconsistent, or drifted between environments.",
+  "Manual Error": "A direct human action accidentally triggered or worsened the incident.",
+  Misconfiguration: "A system or service was set up incorrectly during manual handling.",
+  "Knowledge Gap": "The incident was linked to missing training, unclear ownership, or insufficient documentation.",
+  "Vendor Issue": "A supplier or external provider introduced the disruption.",
+  "Network Outage": "Connectivity problems interrupted traffic, service calls, or access.",
+  "Third-Party Dependency": "An upstream dependency degraded and impacted your workflow.",
+  "Design Flaw": "The incident exposed a weakness in the intended design itself.",
+  "Architecture Limitation": "The current system structure could not safely handle the scenario.",
+  "Unhandled Edge Case": "A rare but valid condition was not covered in the solution.",
+};
+
 export const riskColors: Record<RiskLevel, string> = {
   LOW: "#28d26f",
   MODERATE: "#ffb11a",
@@ -60,6 +93,26 @@ export function getRiskLevel(score: number): RiskLevel {
 export function computeRiskScore(severity: Severity, impact: number) {
   const multiplier = severity === "HIGH" ? 3 : severity === "MEDIUM" ? 2 : 1;
   return multiplier * impact;
+}
+
+export function getImpactGuidance(impact: number) {
+  if (impact <= 2) {
+    return "1-2: Minimal impact. A small inconvenience with no meaningful service or business disruption.";
+  }
+
+  if (impact <= 4) {
+    return "3-4: Limited impact. A contained issue affecting a small feature, team, or short-lived workflow.";
+  }
+
+  if (impact <= 6) {
+    return "5-6: Moderate impact. Multiple users or an important workflow are affected, but operations continue.";
+  }
+
+  if (impact <= 8) {
+    return "7-8: Major impact. A key service is degraded, response effort is urgent, and business impact is clear.";
+  }
+
+  return "9-10: Severe impact. Critical service failure, broad disruption, or major customer/business harm.";
 }
 
 export function enrichIncident(incident: Incident) {

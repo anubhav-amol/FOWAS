@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createIncident } from "@/services/api";
 import {
   categoryOptions,
+  categoryGuidance,
+  getImpactGuidance,
   severityOptions,
+  severityGuidance,
   statusColors,
+  subcategoryGuidance,
   subcategoryMap,
 } from "@/lib/fowas";
 import type { Incident, IncidentVisibility, Workflow } from "@/types";
@@ -19,6 +23,62 @@ interface LogIncidentModalProps {
   incidents: Incident[];
   onClose: () => void;
   onCreated: (incident: Incident) => void;
+}
+
+function FieldHint({
+  title,
+  lines,
+}: {
+  title: string;
+  lines: string[];
+}) {
+  const tooltipId = useId();
+
+  return (
+    <span className="group relative inline-flex">
+      <button
+        type="button"
+        aria-describedby={tooltipId}
+        aria-label={`About ${title}`}
+        className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[11px] font-semibold text-slate-300 transition hover:border-[#4484ff]/60 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#4484ff]/40"
+      >
+        i
+      </button>
+      <span
+        id={tooltipId}
+        role="tooltip"
+        className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 hidden w-72 -translate-x-1/2 rounded-2xl border border-white/10 bg-[#121926]/95 p-3 text-left text-[11px] normal-case tracking-normal text-slate-200 shadow-[0_24px_50px_rgba(0,0,0,0.45)] group-hover:block group-focus-within:block"
+      >
+        <span className="mono text-[10px] uppercase tracking-[0.24em] text-[#4f8cff]">
+          {title}
+        </span>
+        <span className="mt-2 block space-y-2">
+          {lines.map((line) => (
+            <span key={line} className="block leading-5 text-slate-300">
+              {line}
+            </span>
+          ))}
+        </span>
+      </span>
+    </span>
+  );
+}
+
+function LabelWithHint({
+  label,
+  hintTitle,
+  hintLines,
+}: {
+  label: string;
+  hintTitle: string;
+  hintLines: string[];
+}) {
+  return (
+    <span className="flex items-center gap-2 mono text-xs uppercase tracking-[0.24em] text-slate-400">
+      <span>{label}</span>
+      <FieldHint title={hintTitle} lines={hintLines} />
+    </span>
+  );
 }
 
 export function LogIncidentModal({
@@ -209,9 +269,15 @@ export function LogIncidentModal({
           </label>
 
           <label className="space-y-2">
-            <span className="mono text-xs uppercase tracking-[0.24em] text-slate-400">
-              Severity
-            </span>
+            <LabelWithHint
+              label="Severity"
+              hintTitle="Severity Guide"
+              hintLines={[
+                "Low: minor issue with limited disruption and a clear workaround.",
+                "Medium: visible disruption affecting an important workflow, but not a total outage.",
+                "High: critical failure that blocks core functionality or needs immediate escalation.",
+              ]}
+            />
             <select
               value={severity}
               onChange={(event) =>
@@ -225,12 +291,21 @@ export function LogIncidentModal({
                 </option>
               ))}
             </select>
+            <p className="text-xs leading-5 text-slate-500">{severityGuidance[severity]}</p>
           </label>
 
           <label className="space-y-2">
-            <span className="mono text-xs uppercase tracking-[0.24em] text-slate-400">
-              Impact (1-10)
-            </span>
+            <LabelWithHint
+              label="Impact (1-10)"
+              hintTitle="Impact Scale"
+              hintLines={[
+                "1-2: minimal inconvenience, little or no business effect.",
+                "3-4: limited issue affecting a small feature, team, or short time window.",
+                "5-6: moderate disruption affecting multiple users or an important workflow.",
+                "7-8: major degradation with clear urgency and business impact.",
+                "9-10: severe outage or widespread critical harm.",
+              ]}
+            />
             <input
               value={impact}
               onChange={(event) => setImpact(Number(event.target.value))}
@@ -239,12 +314,21 @@ export function LogIncidentModal({
               max={10}
               className="fowas-input w-full"
             />
+            <p className="text-xs leading-5 text-slate-500">{getImpactGuidance(impact)}</p>
           </label>
 
           <label className="space-y-2">
-            <span className="mono text-xs uppercase tracking-[0.24em] text-slate-400">
-              Category
-            </span>
+            <LabelWithHint
+              label="Category"
+              hintTitle="Category Guide"
+              hintLines={[
+                "Technical: code, infrastructure, hardware, or platform faults.",
+                "Operational: deployment, process, release, or configuration execution problems.",
+                "Human: incidents triggered by manual action, oversight, or knowledge gaps.",
+                "External: vendor, upstream, or third-party causes outside direct control.",
+                "Systemic: design or architecture weaknesses that make incidents repeat.",
+              ]}
+            />
             <select
               value={category}
               onChange={(event) =>
@@ -258,12 +342,17 @@ export function LogIncidentModal({
                 </option>
               ))}
             </select>
+            <p className="text-xs leading-5 text-slate-500">{categoryGuidance[category]}</p>
           </label>
 
           <label className="space-y-2">
-            <span className="mono text-xs uppercase tracking-[0.24em] text-slate-400">
-              Subcategory
-            </span>
+            <LabelWithHint
+              label="Subcategory"
+              hintTitle="Subcategory Guide"
+              hintLines={subcategoryMap[category].map(
+                (option) => `${option}: ${subcategoryGuidance[option]}`,
+              )}
+            />
             <select
               value={subcategory}
               onChange={(event) => setSubcategory(event.target.value)}
@@ -275,6 +364,9 @@ export function LogIncidentModal({
                 </option>
               ))}
             </select>
+            <p className="text-xs leading-5 text-slate-500">
+              {subcategoryGuidance[subcategory]}
+            </p>
           </label>
 
           <label className="space-y-2">
