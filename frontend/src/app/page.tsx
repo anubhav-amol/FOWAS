@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background">
       <div className="mono text-sm uppercase tracking-[0.35em] text-slate-500">
-        Initialising FOWAS cockpit...
+        Initialising Failure Oriented Workflow analysis System
       </div>
     </main>
   );
