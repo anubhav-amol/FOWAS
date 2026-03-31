@@ -37,7 +37,7 @@ export default function LoginPage() {
           Operator Login
         </p>
         <h1 className="mt-4 text-4xl font-bold uppercase tracking-[0.04em] text-white">
-          Access the cockpit
+          Welcome to FOWAS....
         </h1>
         <p className="mt-3 text-sm text-slate-400">
           Sign in to review incidents, manage workflows, and monitor reliability metrics.
