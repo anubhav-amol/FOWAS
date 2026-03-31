@@ -1,5 +1,5 @@
 # FOWAS — Failure-Oriented Workflow Analysis System
-website - fowas.up.railway.app
+website - <href>https://fowas.up.railway.app</href>
 > A multi-tenant reliability intelligence platform that transforms structured failure logging into quantitative operational analytics.
 
 Built as a Computer Science Software Engineering project, FOWAS addresses a real architectural gap in engineering workflows: the absence of structured failure intelligence. Unlike generic task trackers, FOWAS treats every incident as a quantifiable data point — computing deterministic risk scores, SRE-standard reliability metrics, and surfacing systemic failure patterns through an interactive analytics dashboard.
