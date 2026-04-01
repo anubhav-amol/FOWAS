@@ -9,24 +9,24 @@ export default function ProfilePage() {
   return (
     <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
       <Panel title="Operator Profile" eyebrow="Authenticated User">
-        <div className="space-y-3">
-          <p className="text-4xl font-semibold uppercase tracking-[0.04em] text-white">
+        <div className="space-y-2">
+          <p className="text-2xl font-semibold tracking-tight text-white">
             {user?.full_name ?? "Operator"}
           </p>
-          <p className="mono text-xs uppercase tracking-[0.24em] text-slate-400">
-            {user?.email ?? "--"}
+          <p className="mono text-sm text-slate-400">
+            {user?.email ?? "—"}
           </p>
         </div>
       </Panel>
       <Panel title="FOWAS Role">
-        <div className="space-y-4 text-sm text-slate-300">
+        <div className="space-y-3 text-[13px] leading-relaxed text-slate-400">
           <p>
-            This profile is currently backed by the authenticated user record returned by
+            This profile is backed by the authenticated user record returned by
             the FastAPI session endpoint.
           </p>
           <p>
             A fuller profile surface can add organisation memberships, audit activity, and
-            personal reliability views later.
+            personal reliability views in a future iteration.
           </p>
         </div>
       </Panel>
