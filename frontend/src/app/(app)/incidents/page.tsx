@@ -7,6 +7,7 @@ import { useGlobalFilters } from "@/hooks/useGlobalFilters";
 import {
   filterIncidents,
   formatDate,
+  severityColors,
   statusColors,
 } from "@/lib/fowas";
 import { getIncidents, getWorkflows, updateIncident } from "@/services/api";
@@ -70,20 +71,20 @@ export default function IncidentsPage() {
     <div className="space-y-6">
       <section className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-5xl font-bold uppercase tracking-tight text-white">
-            ACTIVE_INCIDENTS
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            Incidents
           </h1>
-          <span className="chip mono text-xs uppercase tracking-[0.22em]">
-            Range: {filters.dateRange}d
+          <span className="chip text-xs">
+            {filters.dateRange}d range
           </span>
           {filters.severities.map((severity) => (
-            <span key={severity} className="chip mono text-xs uppercase tracking-[0.22em]">
-              Severity: {severity}
+            <span key={severity} className="chip text-xs">
+              {severity}
             </span>
           ))}
           {filters.workflowIds.length > 0 ? (
-            <span className="chip mono text-xs uppercase tracking-[0.22em]">
-              Workflows: {filters.workflowIds.length}
+            <span className="chip text-xs">
+              {filters.workflowIds.length} workflow{filters.workflowIds.length > 1 ? "s" : ""}
             </span>
           ) : null}
         </div>
@@ -92,94 +93,72 @@ export default function IncidentsPage() {
             type="button"
             onClick={() => exportIncidentsCSV(filteredIncidents, workflows)}
             disabled={loading || filteredIncidents.length === 0}
-            className="chip mono text-xs uppercase tracking-[0.22em] transition hover:border-[#28d26f] hover:text-[#28d26f] disabled:opacity-30"
+            className="chip text-xs transition hover:border-[var(--green)] hover:text-[var(--green)] disabled:opacity-30 disabled:cursor-not-allowed"
           >
             Export CSV
           </button>
-          <button type="button" onClick={() => setModalOpen(true)} className="fowas-button px-5 py-3">
+          <button type="button" onClick={() => setModalOpen(true)} className="fowas-button px-4 py-2.5 text-[13px]">
             Log Incident
           </button>
         </div>
       </section>
 
       <Panel>
-        {error ? <p className="mb-4 text-sm text-red-200">{error}</p> : null}
+        {error ? (
+          <div className="mb-4 rounded-[var(--radius-md)] border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-300">
+            {error}
+          </div>
+        ) : null}
+
         <div className="overflow-x-auto">
           <table className="min-w-full text-left">
-            <thead className="border-b border-white/8 bg-white/[0.03]">
-              <tr className="mono text-xs uppercase tracking-[0.22em] text-slate-500">
-                <th className="px-5 py-4">#</th>
-                <th className="px-5 py-4">Title</th>
-                <th className="px-5 py-4">Severity</th>
-                <th className="px-5 py-4">Risk Score</th>
-                <th className="px-5 py-4">Category</th>
-                <th className="px-5 py-4">Workflow</th>
-                <th className="px-5 py-4">Status</th>
-                <th className="px-5 py-4">Update</th>
-                <th className="px-5 py-4">Created</th>
+            <thead>
+              <tr className="border-b border-white/8 text-xs font-medium uppercase tracking-wider text-slate-500">
+                <th className="px-4 pb-3 pt-1">#</th>
+                <th className="px-4 pb-3 pt-1">Title</th>
+                <th className="px-4 pb-3 pt-1">Severity</th>
+                <th className="px-4 pb-3 pt-1">Risk</th>
+                <th className="px-4 pb-3 pt-1">Category</th>
+                <th className="px-4 pb-3 pt-1">Workflow</th>
+                <th className="px-4 pb-3 pt-1">Status</th>
+                <th className="px-4 pb-3 pt-1">Update</th>
+                <th className="px-4 pb-3 pt-1">Created</th>
               </tr>
             </thead>
             <tbody>
               {filteredIncidents.map((incident, index) => (
-                <tr key={incident.id} className="border-b border-white/6 hover:bg-white/[0.02]">
-                  <td className="mono px-5 py-5 text-xs uppercase tracking-[0.2em] text-slate-500">
-                    INC-{String(index + 8801)}
+                <tr key={incident.id} className="border-b border-white/[0.04] transition hover:bg-white/[0.02]">
+                  <td className="mono px-4 py-3.5 text-xs text-slate-600">
+                    {String(index + 1).padStart(3, "0")}
                   </td>
-                  <td className="px-5 py-5 text-white">{incident.title}</td>
-                  <td className="px-5 py-5">
-                    <span
-                      className="mono rounded-md border px-3 py-1 text-xs uppercase tracking-[0.18em]"
-                      style={{
-                        color:
-                          incident.severity === "HIGH"
-                            ? "#ff5757"
-                            : incident.severity === "MEDIUM"
-                              ? "#ffb11a"
-                              : "#28d26f",
-                        borderColor:
-                          incident.severity === "HIGH"
-                            ? "rgba(255,87,87,0.45)"
-                            : incident.severity === "MEDIUM"
-                              ? "rgba(255,177,26,0.45)"
-                              : "rgba(40,210,111,0.45)",
-                      }}
-                    >
+                  <td className="px-4 py-3.5 text-sm font-medium text-white">{incident.title}</td>
+                  <td className="px-4 py-3.5">
+                    <span className="badge" style={{ color: severityColors[incident.severity] }}>
                       {incident.severity}
                     </span>
                   </td>
-                  <td className="mono px-5 py-5 text-sm text-white">
-                    {incident.risk_score ?? "--"}
+                  <td className="mono px-4 py-3.5 text-sm tabular-nums text-white">
+                    {incident.risk_score ?? "—"}
                   </td>
-                  <td className="mono px-5 py-5 text-xs uppercase tracking-[0.18em] text-slate-300">
+                  <td className="px-4 py-3.5 text-xs text-slate-400">
                     {incident.main_category}
                   </td>
-                  <td className="mono px-5 py-5 text-xs uppercase tracking-[0.18em] text-slate-300">
-                    {workflows.find((workflow) => workflow.id === incident.workflow_id)?.name ?? "--"}
+                  <td className="px-4 py-3.5 text-xs text-slate-400">
+                    {workflows.find((workflow) => workflow.id === incident.workflow_id)?.name ?? "—"}
                   </td>
-                  <td className="px-5 py-5">
-                    <span
-                      className="mono rounded-md border px-3 py-1 text-xs uppercase tracking-[0.18em]"
-                      style={{
-                        color: statusColors[incident.status],
-                        borderColor:
-                          incident.status === "OPEN"
-                            ? "rgba(68,132,255,0.45)"
-                            : incident.status === "INVESTIGATING"
-                              ? "rgba(255,177,26,0.45)"
-                              : "rgba(40,210,111,0.45)",
-                      }}
-                    >
+                  <td className="px-4 py-3.5">
+                    <span className="badge" style={{ color: statusColors[incident.status] }}>
                       {incident.status}
                     </span>
                   </td>
-                  <td className="px-5 py-5">
+                  <td className="px-4 py-3.5">
                     <select
                       value={incident.status}
                       onChange={(event) =>
                         void handleStatusChange(incident.id, event.target.value as Status)
                       }
                       disabled={updatingId === incident.id}
-                      className="fowas-input min-w-[170px] py-2 text-xs"
+                      className="fowas-input min-w-[150px] py-2 text-xs"
                     >
                       {["OPEN", "INVESTIGATING", "RESOLVED"].map((status) => (
                         <option key={status} value={status}>
@@ -190,7 +169,7 @@ export default function IncidentsPage() {
                       ))}
                     </select>
                   </td>
-                  <td className="mono px-5 py-5 text-xs uppercase tracking-[0.18em] text-slate-500">
+                  <td className="px-4 py-3.5 text-xs text-slate-500">
                     {formatDate(incident.created_at)}
                   </td>
                 </tr>
@@ -200,9 +179,14 @@ export default function IncidentsPage() {
         </div>
 
         {!loading && filteredIncidents.length === 0 ? (
-          <p className="mt-5 text-sm text-slate-500">
-            No incidents found in the selected scope. Log one to activate the queue.
-          </p>
+          <div className="py-10 text-center">
+            <p className="text-sm text-slate-500">
+              No incidents found in the selected scope.
+            </p>
+            <p className="mt-1 text-xs text-slate-600">
+              Log one to activate the queue.
+            </p>
+          </div>
         ) : null}
       </Panel>
 
