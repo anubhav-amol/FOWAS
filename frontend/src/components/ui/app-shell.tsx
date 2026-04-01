@@ -32,7 +32,7 @@ const navItems = [
 
 const footerItems = [
   { href: "/settings", label: "Settings", icon: SettingsIcon },
-  { href: "/profile", label: "User Profile", icon: ProfileIcon },
+  { href: "/profile", label: "Profile", icon: ProfileIcon },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -53,47 +53,49 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (loading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="mono text-sm uppercase tracking-[0.35em] text-slate-500">
-          Syncing operator session...
+        <div className="flex flex-col items-center gap-3">
+          <div className="skeleton h-2 w-40 rounded-full" />
+          <p className="mono text-xs uppercase tracking-widest text-slate-500">
+            Loading session…
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="shell-background min-h-screen p-3 text-white md:p-5">
-      <div className="mx-auto flex min-h-[calc(100vh-1.5rem)] max-w-[1800px] overflow-hidden rounded-[2rem] border border-white/8 bg-[#090d13]">
-        <aside className="hidden w-[260px] flex-col border-r border-white/8 bg-[#10141d] xl:flex">
-          <div className="px-8 py-7">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#4383ff] text-[#07111f]">
+    <div className="shell-background min-h-screen p-3 text-white md:p-4">
+      <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1800px] overflow-hidden rounded-[var(--radius-xl)] border border-white/8 bg-[#090d13]">
+
+        {/* ── Sidebar ── */}
+        <aside className="hidden w-[240px] flex-col border-r border-white/8 bg-[#0e1219] xl:flex">
+          <div className="px-6 py-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--blue)] text-white">
                 <TerminalIcon />
               </div>
               <div>
-                <p className="text-4xl font-bold uppercase leading-none tracking-tight text-white">
+                <p className="text-lg font-bold tracking-tight text-white">
                   FOWAS
                 </p>
-                <p className="mono mt-1 text-xs uppercase tracking-[0.28em] text-slate-400">
-                  Reliability
-                </p>
-                <p className="mono text-xs uppercase tracking-[0.28em] text-slate-500">
-                  Cockpit
+                <p className="mono text-[10px] uppercase tracking-widest text-slate-500">
+                  Reliability Cockpit
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="px-6">
+          <div className="px-5">
             <Link
               href="/incidents"
-              className="fowas-button glow-blue flex items-center justify-center gap-3 rounded-2xl px-4 py-4 text-sm"
+              className="fowas-button glow-blue flex items-center justify-center gap-2.5 rounded-[var(--radius-md)] px-4 py-3 text-[13px]"
             >
               <PlusIcon />
               Log Incident
             </Link>
           </div>
 
-          <nav className="mt-8 flex-1 space-y-2 px-4">
+          <nav className="mt-6 flex-1 space-y-1 px-3">
             {navItems.map((item) => {
               const active = pathname.startsWith(item.href);
               const Icon = item.icon;
@@ -102,22 +104,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`group flex items-center gap-4 rounded-r-2xl border-l-2 px-5 py-4 transition ${
+                  className={`group flex items-center gap-3 rounded-[var(--radius-md)] px-4 py-3 text-[13px] font-medium transition-all ${
                     active
-                      ? "border-[#4484ff] bg-[#16233b] text-[#4c89ff]"
-                      : "border-transparent text-slate-300 hover:bg-white/3 hover:text-white"
+                      ? "bg-[var(--blue)]/10 text-[var(--blue)]"
+                      : "text-slate-400 hover:bg-white/[0.04] hover:text-slate-200"
                   }`}
                 >
                   <Icon />
-                  <span className="mono text-[13px] uppercase tracking-[0.14em]">
-                    {item.label}
-                  </span>
+                  <span>{item.label}</span>
                 </Link>
               );
             })}
           </nav>
 
-          <div className="border-t border-white/8 px-4 py-6">
+          <div className="border-t border-white/8 px-3 py-4 space-y-1">
             {footerItems.map((item) => {
               const active = pathname.startsWith(item.href);
               const Icon = item.icon;
@@ -126,31 +126,32 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`group flex items-center gap-4 rounded-2xl px-5 py-4 transition ${
+                  className={`group flex items-center gap-3 rounded-[var(--radius-md)] px-4 py-3 text-[13px] font-medium transition-all ${
                     active
-                      ? "bg-white/5 text-white"
-                      : "text-slate-300 hover:bg-white/3 hover:text-white"
+                      ? "bg-white/[0.06] text-white"
+                      : "text-slate-400 hover:bg-white/[0.04] hover:text-slate-200"
                   }`}
                 >
                   <Icon />
-                  <span className="mono text-[13px] uppercase tracking-[0.14em]">
-                    {item.label}
-                  </span>
+                  <span>{item.label}</span>
                 </Link>
               );
             })}
           </div>
         </aside>
 
+        {/* ── Main Area ── */}
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex flex-col gap-4 border-b border-white/8 px-5 py-4 md:px-8 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex items-center gap-3 overflow-x-auto">
+
+          {/* ── Top Bar ── */}
+          <header className="flex flex-col gap-3 border-b border-white/8 px-5 py-3.5 md:px-6 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex items-center gap-1 overflow-x-auto">
               {[
-                { id: "global", label: "Global Filters" },
+                { id: "global", label: "Filters" },
                 { id: "date", label: "Date Range" },
                 { id: "severity", label: "Severity" },
                 { id: "workflow", label: "Workflow" },
-              ].map((item, index) => (
+              ].map((item) => (
                 <button
                   key={item.label}
                   type="button"
@@ -159,10 +160,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       current === item.id ? null : (item.id as typeof activeFilterPanel),
                     )
                   }
-                  className={`mono shrink-0 border-b-2 px-1 pb-3 text-xs uppercase tracking-[0.28em] ${
-                    activeFilterPanel === item.id || (index === 0 && activeFilterPanel === null)
-                      ? "border-[#4484ff] text-white"
-                      : "border-transparent text-slate-500"
+                  className={`shrink-0 rounded-[var(--radius-sm)] px-3 py-2 text-xs font-medium transition-all ${
+                    activeFilterPanel === item.id
+                      ? "bg-[var(--blue)]/10 text-[var(--blue)]"
+                      : "text-slate-500 hover:text-slate-300"
                   }`}
                 >
                   {item.label}
@@ -170,8 +171,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               ))}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap">
-              <label className="flex min-w-[280px] flex-1 items-center gap-3 rounded-2xl border border-white/8 bg-black/25 px-4 py-3 text-slate-400">
+            <div className="flex flex-wrap items-center gap-2.5 xl:flex-nowrap">
+              <label className="flex min-w-[260px] flex-1 items-center gap-2.5 rounded-[var(--radius-md)] border border-white/8 bg-black/20 px-3.5 py-2.5 text-slate-400">
                 <SearchIcon />
                 <input
                   value={filters.search}
@@ -181,19 +182,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       search: event.target.value,
                     }))
                   }
-                  placeholder="Search signals..."
-                  className="mono w-full bg-transparent text-sm uppercase tracking-[0.18em] text-slate-300 outline-none placeholder:text-slate-600"
+                  placeholder="Search incidents..."
+                  className="w-full bg-transparent text-sm text-slate-300 outline-none placeholder:text-slate-600"
                 />
               </label>
               <button
                 type="button"
-                className="rounded-full border border-white/10 p-3 text-slate-400 transition hover:border-white/20 hover:text-white"
+                className="rounded-[var(--radius-md)] border border-white/8 p-2.5 text-slate-400 transition hover:border-white/15 hover:text-white"
               >
                 <BellIcon />
               </button>
               <button
                 type="button"
-                className="rounded-full border border-white/10 p-3 text-slate-400 transition hover:border-white/20 hover:text-white"
+                className="rounded-[var(--radius-md)] border border-white/8 p-2.5 text-slate-400 transition hover:border-white/15 hover:text-white"
               >
                 <HelpIcon />
               </button>
@@ -203,19 +204,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   logout();
                   router.replace("/login");
                 }}
-                className="flex items-center gap-3 rounded-full border border-white/10 bg-white/4 px-2 py-2 text-left"
+                className="flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.03] px-1.5 py-1.5 text-left transition hover:border-white/15"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-slate-50 to-slate-300 text-sm font-bold text-slate-900">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-slate-100 to-slate-300 text-xs font-bold text-slate-900">
                   {initials(user.full_name)}
                 </span>
               </button>
             </div>
           </header>
 
+          {/* ── Filter Panel ── */}
           {activeFilterPanel ? (
-            <div className="border-b border-white/8 bg-[#0d1118] px-5 py-4 md:px-8">
+            <div className="border-b border-white/8 bg-[#0c0f16] px-5 py-3.5 md:px-6 fade-in">
               {activeFilterPanel === "global" ? (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
                     onClick={() =>
@@ -228,18 +230,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         search: "",
                       })
                     }
-                    className="chip mono text-xs uppercase tracking-[0.22em] text-white"
+                    className="chip text-xs text-white"
                   >
                     Reset All
                   </button>
-                  <span className="chip mono text-xs uppercase tracking-[0.22em]">
-                    Range {filters.dateRange}d
+                  <span className="chip text-xs">
+                    Range: {filters.dateRange}d
                   </span>
-                  <span className="chip mono text-xs uppercase tracking-[0.22em]">
-                    Severity {filters.severities.length || "All"}
+                  <span className="chip text-xs">
+                    Severity: {filters.severities.length || "All"}
                   </span>
-                  <span className="chip mono text-xs uppercase tracking-[0.22em]">
-                    Workflows {filters.workflowIds.length || "All"}
+                  <span className="chip text-xs">
+                    Workflows: {filters.workflowIds.length || "All"}
                   </span>
                 </div>
               ) : null}
@@ -256,11 +258,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                           dateRange: range as typeof current.dateRange,
                         }))
                       }
-                      className={`chip mono text-xs uppercase tracking-[0.22em] ${
-                        filters.dateRange === range ? "border-[#4484ff] text-white" : ""
+                      className={`chip text-xs ${
+                        filters.dateRange === range ? "border-[var(--blue)] text-white bg-[var(--blue)]/8" : ""
                       }`}
                     >
-                      {range}d
+                      {range} days
                     </button>
                   ))}
                 </div>
@@ -280,8 +282,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                             : [...current.severities, severity],
                         }))
                       }
-                      className={`chip mono text-xs uppercase tracking-[0.22em] ${
-                        filters.severities.includes(severity) ? "border-[#4484ff] text-white" : ""
+                      className={`chip text-xs ${
+                        filters.severities.includes(severity) ? "border-[var(--blue)] text-white bg-[var(--blue)]/8" : ""
                       }`}
                     >
                       {severity}
@@ -294,7 +296,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <div className="flex flex-wrap gap-2">
                   {workflows.length === 0 ? (
                     <p className="text-sm text-slate-500">
-                      No workflows loaded yet. Create one to filter by operational scope.
+                      No workflows available. Create one to filter by scope.
                     </p>
                   ) : (
                     workflows.map((workflow) => (
@@ -309,9 +311,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                               : [...current.workflowIds, workflow.id],
                           }))
                         }
-                        className={`chip mono text-xs uppercase tracking-[0.22em] ${
+                        className={`chip text-xs ${
                           filters.workflowIds.includes(workflow.id)
-                            ? "border-[#4484ff] text-white"
+                            ? "border-[var(--blue)] text-white bg-[var(--blue)]/8"
                             : ""
                         }`}
                       >
