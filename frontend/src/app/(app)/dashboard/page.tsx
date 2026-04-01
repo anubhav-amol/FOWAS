@@ -16,6 +16,7 @@ import {
   getTrendData,
   getWorkflowRisk,
   severityOptions,
+  severityColors,
   statusColors,
 } from "@/lib/fowas";
 import { getIncidents, getOrganisations, getWorkflows } from "@/services/api";
@@ -32,10 +33,19 @@ function StatCard({
   detail: string;
 }) {
   return (
-    <div className="rounded-[1.5rem] border border-white/8 bg-white/3 p-5">
-      <p className="mono text-[11px] uppercase tracking-[0.28em] text-slate-500">{label}</p>
-      <p className="mt-3 text-4xl font-semibold text-white">{value}</p>
-      <p className="mt-2 text-sm text-slate-400">{detail}</p>
+    <div className="rounded-[var(--radius-lg)] border border-white/8 bg-white/[0.025] p-5">
+      <p className="text-xs font-medium text-slate-500">{label}</p>
+      <p className="mt-2.5 text-3xl font-semibold tabular-nums text-white">{value}</p>
+      <p className="mt-1.5 text-[13px] text-slate-500">{detail}</p>
+    </div>
+  );
+}
+
+function LoadingPlaceholder({ label }: { label: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 py-12">
+      <div className="skeleton h-1.5 w-24 rounded-full" />
+      <p className="text-xs text-slate-600">{label}</p>
     </div>
   );
 }
@@ -87,16 +97,17 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* KPI Cards */}
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Total Incidents"
           value={String(summary.total)}
-          detail="All incidents in the current filter scope"
+          detail="Current filter scope"
         />
         <StatCard
           label="High Risk"
           value={String(summary.highRisk)}
-          detail="Priority incidents with risk score above 15"
+          detail="Risk score above 15"
         />
         <StatCard
           label="Resolved"
@@ -104,12 +115,13 @@ export default function DashboardPage() {
           detail={`Availability ${formatPercent(summary.availabilityRatio)}`}
         />
         <StatCard
-          label="MTTR"
+          label="MTTR (hrs)"
           value={formatMetric(summary.mttrHours)}
           detail={`MTBF ${formatMetric(summary.mtbfHours)} hrs`}
         />
       </section>
 
+      {/* Filter bar */}
       <section className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2">
           {[7, 14, 30, 90].map((range) => (
@@ -122,8 +134,8 @@ export default function DashboardPage() {
                   dateRange: range as DashboardFilters["dateRange"],
                 }))
               }
-              className={`chip mono text-xs uppercase tracking-[0.22em] ${
-                filters.dateRange === range ? "border-[#4484ff] text-white" : ""
+              className={`chip text-xs ${
+                filters.dateRange === range ? "border-[var(--blue)] text-white bg-[var(--blue)]/8" : ""
               }`}
             >
               {range}d
@@ -143,19 +155,19 @@ export default function DashboardPage() {
                     : [...current.severities, severity],
                 }))
               }
-              className={`chip mono text-xs uppercase tracking-[0.22em] ${
-                filters.severities.includes(severity) ? "border-[#4484ff] text-white" : ""
+              className={`chip text-xs ${
+                filters.severities.includes(severity) ? "border-[var(--blue)] text-white bg-[var(--blue)]/8" : ""
               }`}
             >
               {severity}
             </button>
           ))}
-          <span className="mx-1 self-center text-white/10">|</span>
+          <span className="mx-0.5 self-center text-white/10">|</span>
           <button
             type="button"
             onClick={() => exportIncidentsCSV(filteredIncidents, workflows)}
             disabled={loading || filteredIncidents.length === 0}
-            className="chip mono text-xs uppercase tracking-[0.22em] transition hover:border-[#28d26f] hover:text-[#28d26f] disabled:opacity-30"
+            className="chip text-xs transition hover:border-[var(--green)] hover:text-[var(--green)] disabled:opacity-30 disabled:cursor-not-allowed"
           >
             Export CSV
           </button>
@@ -163,7 +175,7 @@ export default function DashboardPage() {
             type="button"
             onClick={() => exportDashboardPDF(filteredIncidents, workflows)}
             disabled={loading || filteredIncidents.length === 0}
-            className="chip mono text-xs uppercase tracking-[0.22em] transition hover:border-[#4484ff] hover:text-[#4484ff] disabled:opacity-30"
+            className="chip text-xs transition hover:border-[var(--blue)] hover:text-[var(--blue)] disabled:opacity-30 disabled:cursor-not-allowed"
           >
             Export PDF
           </button>
@@ -171,21 +183,16 @@ export default function DashboardPage() {
       </section>
 
       {error ? (
-        <Panel className="rounded-[1.75rem]">
-          <p className="text-sm text-red-200">{error}</p>
+        <Panel>
+          <p className="text-sm text-red-300">{error}</p>
         </Panel>
       ) : null}
 
+      {/* Charts row */}
       <section className="grid gap-6 xl:grid-cols-[1.6fr_0.75fr_0.75fr]">
-        <Panel
-          title="Risk Distribution"
-          eyebrow="Global Filters"
-          className="min-h-[340px]"
-        >
+        <Panel title="Risk Distribution" eyebrow="Global Filters" className="min-h-[340px]">
           {loading ? (
-            <div className="mono text-sm uppercase tracking-[0.2em] text-slate-500">
-              Loading histogram...
-            </div>
+            <LoadingPlaceholder label="Loading histogram…" />
           ) : (
             <BarChart data={riskDistribution} />
           )}
@@ -193,9 +200,7 @@ export default function DashboardPage() {
 
         <Panel title="Severity Mix" className="min-h-[340px]">
           {loading ? (
-            <div className="mono text-sm uppercase tracking-[0.2em] text-slate-500">
-              Loading severity breakdown...
-            </div>
+            <LoadingPlaceholder label="Loading severity…" />
           ) : (
             <DonutChart
               data={severityBreakdown}
@@ -206,32 +211,31 @@ export default function DashboardPage() {
 
         <Panel title="Workflow Exposure" className="min-h-[340px]">
           {loading ? (
-            <div className="mono text-sm uppercase tracking-[0.2em] text-slate-500">
-              Loading workflow exposure...
-            </div>
+            <LoadingPlaceholder label="Loading workflows…" />
           ) : (
             <ProgressList data={workflowRisk} maxValue={30} />
           )}
         </Panel>
       </section>
 
+      {/* Trend chart */}
       <Panel
-        title="Incident Trend (30 Days)"
+        title={`Incident Trend (${filters.dateRange}d)`}
         right={
-          <div className="flex items-center gap-6">
-            <span className="mono text-xs uppercase tracking-[0.22em] text-[#4f8cff]">
+          <div className="flex items-center gap-5">
+            <span className="flex items-center gap-2 text-xs text-slate-400">
+              <span className="inline-block h-2 w-2 rounded-full bg-[var(--blue)]" />
               Active
             </span>
-            <span className="mono text-xs uppercase tracking-[0.22em] text-slate-500">
+            <span className="flex items-center gap-2 text-xs text-slate-500">
+              <span className="inline-block h-2 w-2 rounded-full bg-slate-500" />
               Resolved
             </span>
           </div>
         }
       >
         {loading ? (
-          <div className="mono text-sm uppercase tracking-[0.2em] text-slate-500">
-            Loading trend...
-          </div>
+          <LoadingPlaceholder label="Loading trend…" />
         ) : (
           <LineAreaChart
             data={trend}
@@ -243,43 +247,44 @@ export default function DashboardPage() {
         )}
       </Panel>
 
+      {/* Recent Incidents table */}
       <Panel
         title="Recent Incidents"
         right={
-          <button type="button" onClick={() => setModalOpen(true)} className="fowas-button px-4 py-3">
+          <button type="button" onClick={() => setModalOpen(true)} className="fowas-button px-4 py-2.5 text-[13px]">
             Log Incident
           </button>
         }
       >
         <div className="overflow-x-auto">
-          <table className="min-w-full border-separate border-spacing-y-3">
+          <table className="min-w-full">
             <thead>
-              <tr className="mono text-xs uppercase tracking-[0.24em] text-slate-500">
-                <th className="px-4 text-left">Title</th>
-                <th className="px-4 text-left">Workflow</th>
-                <th className="px-4 text-left">Severity</th>
-                <th className="px-4 text-left">Status</th>
-                <th className="px-4 text-left">Created</th>
+              <tr className="border-b border-white/8 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
+                <th className="px-4 pb-3">Title</th>
+                <th className="px-4 pb-3">Workflow</th>
+                <th className="px-4 pb-3">Severity</th>
+                <th className="px-4 pb-3">Status</th>
+                <th className="px-4 pb-3">Created</th>
               </tr>
             </thead>
             <tbody>
               {recentIncidents.map((incident) => (
-                <tr key={incident.id} className="rounded-2xl bg-white/[0.025]">
-                  <td className="rounded-l-2xl px-4 py-4 text-sm text-white">{incident.title}</td>
-                  <td className="px-4 py-4 text-sm text-slate-300">
-                    {workflows.find((workflow) => workflow.id === incident.workflow_id)?.name ?? "--"}
+                <tr key={incident.id} className="border-b border-white/[0.04] transition hover:bg-white/[0.02]">
+                  <td className="px-4 py-3.5 text-sm text-white">{incident.title}</td>
+                  <td className="px-4 py-3.5 text-sm text-slate-400">
+                    {workflows.find((workflow) => workflow.id === incident.workflow_id)?.name ?? "—"}
                   </td>
-                  <td className="px-4 py-4">
-                    <span className="mono text-xs uppercase tracking-[0.18em]" style={{ color: incident.severity === "HIGH" ? "#ff5757" : incident.severity === "MEDIUM" ? "#ffb11a" : "#28d26f" }}>
+                  <td className="px-4 py-3.5">
+                    <span className="badge" style={{ color: severityColors[incident.severity] }}>
                       {incident.severity}
                     </span>
                   </td>
-                  <td className="px-4 py-4">
-                    <span className="mono text-xs uppercase tracking-[0.18em]" style={{ color: statusColors[incident.status] }}>
+                  <td className="px-4 py-3.5">
+                    <span className="badge" style={{ color: statusColors[incident.status] }}>
                       {incident.status}
                     </span>
                   </td>
-                  <td className="rounded-r-2xl px-4 py-4 text-sm text-slate-400">
+                  <td className="px-4 py-3.5 text-sm text-slate-500">
                     {formatDate(incident.created_at)}
                   </td>
                 </tr>
@@ -289,32 +294,32 @@ export default function DashboardPage() {
         </div>
 
         {!loading && recentIncidents.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">
-            No incidents match the active filters. Create your first incident to populate the cockpit.
-          </p>
+          <div className="py-10 text-center">
+            <p className="text-sm text-slate-500">
+              No incidents match the active filters.
+            </p>
+            <p className="mt-1 text-xs text-slate-600">
+              Create your first incident to populate the dashboard.
+            </p>
+          </div>
         ) : null}
       </Panel>
 
+      {/* Workspace summary */}
       <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <Panel title="Workspace Status">
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-[1.5rem] border border-white/8 bg-white/4 p-5">
-              <p className="mono text-xs uppercase tracking-[0.24em] text-slate-500">
-                Organizations
-              </p>
-              <p className="mt-3 text-4xl font-semibold text-white">{organisations.length}</p>
+            <div className="rounded-[var(--radius-lg)] border border-white/8 bg-white/[0.03] p-4">
+              <p className="text-xs font-medium text-slate-500">Organizations</p>
+              <p className="mt-2 text-2xl font-semibold text-white">{organisations.length}</p>
             </div>
-            <div className="rounded-[1.5rem] border border-white/8 bg-white/4 p-5">
-              <p className="mono text-xs uppercase tracking-[0.24em] text-slate-500">
-                Workflows
-              </p>
-              <p className="mt-3 text-4xl font-semibold text-white">{workflows.length}</p>
+            <div className="rounded-[var(--radius-lg)] border border-white/8 bg-white/[0.03] p-4">
+              <p className="text-xs font-medium text-slate-500">Workflows</p>
+              <p className="mt-2 text-2xl font-semibold text-white">{workflows.length}</p>
             </div>
-            <div className="rounded-[1.5rem] border border-white/8 bg-white/4 p-5">
-              <p className="mono text-xs uppercase tracking-[0.24em] text-slate-500">
-                Filter Range
-              </p>
-              <p className="mt-3 text-4xl font-semibold text-white">{filters.dateRange}d</p>
+            <div className="rounded-[var(--radius-lg)] border border-white/8 bg-white/[0.03] p-4">
+              <p className="text-xs font-medium text-slate-500">Filter Range</p>
+              <p className="mt-2 text-2xl font-semibold text-white">{filters.dateRange}d</p>
             </div>
           </div>
         </Panel>
@@ -324,16 +329,16 @@ export default function DashboardPage() {
             {severityBreakdown.map((item) => (
               <div key={item.label} className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="mono text-xs uppercase tracking-[0.2em]" style={{ color: item.color }}>
+                  <span className="text-xs font-medium" style={{ color: item.color }}>
                     {item.label}
                   </span>
-                  <span className="mono text-xs uppercase tracking-[0.2em] text-slate-400">
+                  <span className="mono text-xs text-slate-500">
                     {item.value}
                   </span>
                 </div>
-                <div className="h-2 rounded-full bg-white/5">
+                <div className="h-1.5 rounded-full bg-white/[0.05]">
                   <div
-                    className="h-full rounded-full"
+                    className="h-full rounded-full transition-all duration-500"
                     style={{
                       width: `${summary.total === 0 ? 0 : (item.value / summary.total) * 100}%`,
                       background: item.color,
