@@ -32,35 +32,35 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="w-full max-w-[560px] rounded-[2rem] border border-white/8 bg-[#101621] p-8 shadow-[0_30px_80px_rgba(0,0,0,0.45)] md:p-10">
+    <div className="w-full max-w-[480px] rounded-[var(--radius-xl)] border border-white/8 bg-[#101621] p-8 shadow-[0_24px_60px_rgba(0,0,0,0.4)] md:p-10">
       <div className="mb-8">
-        <p className="mono text-xs uppercase tracking-[0.35em] text-[#4f8cff]">
-          Provision Operator
+        <p className="mono text-[11px] uppercase tracking-widest text-[var(--blue-muted)]">
+          Create Account
         </p>
-        <h1 className="mt-4 text-4xl font-bold uppercase tracking-[0.04em] text-white">
-          Create your reliability workspace
+        <h1 className="mt-3 text-2xl font-bold tracking-tight text-white">
+          Set up your workspace
         </h1>
-        <p className="mt-3 text-sm text-slate-400">
-          Register a user account, then continue into the dashboard to create your
+        <p className="mt-2 text-[13px] leading-relaxed text-slate-400">
+          Register, then continue to the dashboard to create your
           first organisation, workflow, and incident stream.
         </p>
       </div>
 
       <form className="space-y-5" onSubmit={handleSubmit}>
         <div className="space-y-2">
-          <label className="mono text-xs uppercase tracking-[0.24em] text-slate-400">
+          <label className="text-xs font-medium text-slate-400">
             Full Name
           </label>
           <input
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
             className="fowas-input w-full"
-            placeholder="Reliability Operator"
+            placeholder="Your name"
             required
           />
         </div>
         <div className="space-y-2">
-          <label className="mono text-xs uppercase tracking-[0.24em] text-slate-400">
+          <label className="text-xs font-medium text-slate-400">
             Email
           </label>
           <input
@@ -73,7 +73,7 @@ export default function RegisterPage() {
           />
         </div>
         <div className="space-y-2">
-          <label className="mono text-xs uppercase tracking-[0.24em] text-slate-400">
+          <label className="text-xs font-medium text-slate-400">
             Password
           </label>
           <input
@@ -88,19 +88,19 @@ export default function RegisterPage() {
         </div>
 
         {error ? (
-          <div className="rounded-2xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-200">
+          <div className="rounded-[var(--radius-md)] border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-300">
             {error}
           </div>
         ) : null}
 
-        <button type="submit" disabled={submitting} className="fowas-button w-full px-5 py-4">
-          {submitting ? "Creating account..." : "Create Account"}
+        <button type="submit" disabled={submitting} className="fowas-button w-full px-5 py-3">
+          {submitting ? "Creating account…" : "Create Account"}
         </button>
       </form>
 
-      <p className="mt-6 text-sm text-slate-400">
+      <p className="mt-6 text-sm text-slate-500">
         Already registered?{" "}
-        <Link href="/login" className="font-semibold text-[#71a0ff]">
+        <Link href="/login" className="font-medium text-[var(--blue-muted)] hover:text-white transition-colors">
           Sign in
         </Link>
       </p>
