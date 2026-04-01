@@ -81,7 +81,7 @@ export default function WorkflowsPage() {
           <textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            className="fowas-input min-h-[150px] w-full resize-y"
+            className="fowas-input min-h-[140px] w-full resize-y"
             placeholder="Describe the service, pipeline, or operational boundary."
           />
           <select
@@ -107,36 +107,47 @@ export default function WorkflowsPage() {
               </option>
             ))}
           </select>
-          {error ? <p className="text-sm text-red-200">{error}</p> : null}
-          <button type="submit" disabled={submitting} className="fowas-button px-5 py-3">
-            {submitting ? "Creating..." : "Create Workflow"}
+          {error ? (
+            <div className="rounded-[var(--radius-md)] border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-300">
+              {error}
+            </div>
+          ) : null}
+          <button type="submit" disabled={submitting} className="fowas-button px-5 py-2.5 text-[13px]">
+            {submitting ? "Creating…" : "Create Workflow"}
           </button>
         </form>
       </Panel>
 
       <Panel title="Workflow Registry" eyebrow="Visible Workstreams">
-        <div className="space-y-4">
+        <div className="space-y-3">
           {loading ? (
-            <p className="mono text-sm uppercase tracking-[0.2em] text-slate-500">
-              Loading workflows...
-            </p>
+            <div className="space-y-3">
+              {[1, 2].map((i) => (
+                <div key={i} className="skeleton h-20 w-full" />
+              ))}
+            </div>
           ) : workflows.length === 0 ? (
-            <p className="text-sm text-slate-500">
-              No workflows yet. Create one to start grouping incidents by operational domain.
-            </p>
+            <div className="py-10 text-center">
+              <p className="text-sm text-slate-500">
+                No workflows yet.
+              </p>
+              <p className="mt-1 text-xs text-slate-600">
+                Create one to start grouping incidents by operational domain.
+              </p>
+            </div>
           ) : (
             workflows.map((workflow) => (
-              <div key={workflow.id} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
+              <div key={workflow.id} className="rounded-[var(--radius-lg)] border border-white/8 bg-white/[0.025] p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-2xl font-semibold uppercase tracking-[0.04em] text-white">
+                    <h3 className="text-sm font-semibold text-white">
                       {workflow.name}
                     </h3>
-                    <p className="mt-2 text-sm text-slate-400">
+                    <p className="mt-1 text-[13px] text-slate-500">
                       {workflow.description || "No description recorded."}
                     </p>
                   </div>
-                  <span className="chip mono text-xs uppercase tracking-[0.22em]">
+                  <span className="chip text-xs">
                     {workflow.visibility}
                   </span>
                 </div>
